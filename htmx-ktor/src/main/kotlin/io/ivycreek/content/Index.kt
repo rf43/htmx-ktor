@@ -5,6 +5,7 @@ import io.ivycreek.navbar.navbar
 import kotlinx.html.*
 
 fun HTML.index() {
+    lang = "en"
     head {
         title {
             +"IvyCreek + htmx + Tailwind Example"
