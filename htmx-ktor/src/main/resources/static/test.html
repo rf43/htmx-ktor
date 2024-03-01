@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IvyCreek + htmx + Tailwind Example</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body class="h-full">
+<div class="min-h-full">
+    <nav class="bg-gray-800">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-24 items-center justify-between">
+                <div class="flex items-center">
+                    <div>
+                        <img class="h-48 w-auto" src="logo.png" alt="IvyCreek" />
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="block">
+                            <div class="ml-10 flex items-baseline space-x-4">
+                                <a hx-get="/components/dashboard" hx-target="#content" href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Dashboard</a>
+                                <a hx-get="/components/team" hx-target="#content" href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Team</a>
+                                <a hx-get="/components/projects" hx-target="#content" href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Projects</a>
+                                <a hx-get="/components/calendar" hx-target="#content" href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Calendar</a>
+                                <a hx-get="/components/about" hx-target="#content" href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">About</a>
+                                <a hx-get="/components/contact" hx-target="#content" href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Contact</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div id="content">
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
+            </div>
+        </header>
+        <main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+            <p class="text-2xl text-gray-900">Welcome to the IvyCreek Dashboard. This is where you can find all the
+                information you need to manage your projects, team, and calendar.</p>
+        </main>
+    </div>
+</div>
+</body>
+</html>
