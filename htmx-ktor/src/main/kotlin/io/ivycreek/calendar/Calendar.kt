@@ -3,6 +3,28 @@ package io.ivycreek.calendar
 import io.ivycreek.content.pageHeader
 import kotlinx.html.*
 
+private data class CalendarEvent(
+    val title: String,
+    val startDate: String,
+    val endDate: String,
+    val location: String
+)
+
+private val calendarEvents = listOf(
+    CalendarEvent(
+        "Back End Development",
+        "2021-10-01",
+        "2021-10-01",
+        "Charlottesville, VA"
+    ),
+    CalendarEvent(
+        "Front End Development",
+        "2024-01-21",
+        "2024-02-21",
+        "Charlottesville, VA"
+    )
+)
+
 fun FlowContent.calendar() = div {
     id = "content"
     pageHeader("Calendar")
@@ -77,61 +99,42 @@ fun FlowContent.calendar() = div {
                                     }
                                 }
                                 tbody {
-                                    tr {
-                                        td {
-                                            classes = setOf("px-6", "py-4", "whitespace-nowrap")
-                                            div {
-                                                classes = setOf("flex", "items-center")
+                                    calendarEvents.map {
+                                        tr {
+                                            classes = setOf("bg-white", "hover:bg-gray-50")
+                                            td {
+                                                classes = setOf("px-6", "py-4", "whitespace-nowrap")
                                                 div {
-                                                    classes = setOf("ml-4")
+                                                    classes = setOf("flex", "items-center")
                                                     div {
-                                                        classes = setOf("text-sm", "font-medium", "text-gray-900")
-                                                        +"Back End Development"
+                                                        classes = setOf("ml-4")
+                                                        div {
+                                                            classes = setOf("text-sm", "font-medium", "text-gray-900")
+                                                            +it.title
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                        td {
-                                            classes = setOf("px-6", "py-4", "whitespace-nowrap")
-                                            div {
-                                                classes = setOf("text-sm", "text-gray-900")
-                                                +"2021-10-01"
-                                            }
-                                        }
-                                    }
-                                    tr {
-                                        td {
-                                            classes = setOf("px-6", "py-4", "whitespace-nowrap")
-                                            div {
-                                                classes = setOf("flex", "items-center")
+                                            td {
+                                                classes = setOf("px-6", "py-4", "whitespace-nowrap")
                                                 div {
-                                                    classes = setOf("ml-4")
-                                                    div {
-                                                        classes = setOf("text-sm", "font-medium", "text-gray-900")
-                                                        +"Front End Development"
-                                                    }
+                                                    classes = setOf("text-sm", "text-gray-900")
+                                                    +it.startDate
                                                 }
                                             }
-                                        }
-                                        td {
-                                            classes = setOf("px-6", "py-4", "whitespace-nowrap")
-                                            div {
-                                                classes = setOf("text-sm", "text-gray-900")
-                                                +"2024-01-21"
+                                            td {
+                                                classes = setOf("px-6", "py-4", "whitespace-nowrap")
+                                                div {
+                                                    classes = setOf("text-sm", "text-gray-900")
+                                                    +it.endDate
+                                                }
                                             }
-                                        }
-                                        td {
-                                            classes = setOf("px-6", "py-4", "whitespace-nowrap")
-                                            div {
-                                                classes = setOf("text-sm", "text-gray-900")
-                                                +"2024-02-21"
-                                            }
-                                        }
-                                        td {
-                                            classes = setOf("px-6", "py-4", "whitespace-nowrap")
-                                            div {
-                                                classes = setOf("text-sm", "text-gray-900")
-                                                +"Charlottesville, VA"
+                                            td {
+                                                classes = setOf("px-6", "py-4", "whitespace-nowrap")
+                                                div {
+                                                    classes = setOf("text-sm", "text-gray-900")
+                                                    +it.location
+                                                }
                                             }
                                         }
                                     }
