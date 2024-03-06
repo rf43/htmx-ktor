@@ -8,10 +8,10 @@ fun HTML.index() {
     lang = "en"
     head {
         title {
-            +"IvyCreek + htmx + Tailwind Example"
+            +"PNutz + htmx + Tailwind Example"
         }
-        script { src = "https://cdn.tailwindcss.com" }
         script { src = "https://unpkg.com/htmx.org@1.9.10" }
+        script { src = "https://cdn.tailwindcss.com" }
     }
     body {
         classes = setOf("h-full")

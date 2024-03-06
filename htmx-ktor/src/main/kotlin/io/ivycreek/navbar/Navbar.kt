@@ -3,7 +3,7 @@ package io.ivycreek.navbar
 import kotlinx.html.*
 
 fun FlowContent.navbar(vararg tabs: String) = nav {
-    classes = setOf("bg-gray-800")
+    classes = setOf("bg-gray-400")
     div {
         classes = setOf("mx-auto", "max-w-7xl", "px-4", "sm:px-6", "lg:px-8")
         div {
@@ -12,9 +12,9 @@ fun FlowContent.navbar(vararg tabs: String) = nav {
                 classes = setOf("flex", "items-center")
                 div {
                     img {
-                        classes = setOf("h-48", "w-auto")
-                        src = "logo.png"
-                        alt = "IvyCreek"
+                        classes = setOf("h-14", "w-auto")
+                        src = "pnutz-logo-transparent.svg"
+                        alt = "PNutz"
                     }
                 }
                 div {
@@ -27,9 +27,10 @@ fun FlowContent.navbar(vararg tabs: String) = nav {
                                 a {
                                     attributes["hx-get"] = "/components/${it.lowercase()}"
                                     attributes["hx-target"] = "#content"
-                                    href = "#"
+                                    attributes["hx-push-url"] = "true"
+                                    href = "/components/${it.lowercase()}"
                                     classes = setOf(
-                                        "text-gray-300",
+                                        "text-gray-700",
                                         "hover:bg-gray-700",
                                         "hover:text-white",
                                         "rounded-md",

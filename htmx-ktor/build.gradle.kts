@@ -14,7 +14,9 @@ version = "0.0.1"
 application {
     mainClass.set("io.ivycreek.ApplicationKt")
 
-    val isDevelopment: Boolean = project.ext.has("development")
+    val dev = project.ext.has("development") && project.ext.get("development") == "true"
+    println("Development mode: $dev")
+    val isDevelopment: Boolean = dev
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
