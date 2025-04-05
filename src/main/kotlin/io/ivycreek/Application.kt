@@ -17,7 +17,7 @@ fun main() {
     }.start(wait = true)
 }
 
-private fun Application.module() {
+fun Application.module() {
     configureRouting()
     dashboardRouter()
     teamRouter()
