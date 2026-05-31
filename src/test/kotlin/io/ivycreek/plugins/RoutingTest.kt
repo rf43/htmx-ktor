@@ -31,6 +31,18 @@ class RoutingTest {
     }
 
     @Test
+    fun `compiled css is served from the root path`() = testApplication {
+        application {
+            configureRouting()
+        }
+        client.get("/app.css").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals(ContentType.Text.CSS, contentType()?.withoutParameters())
+            assertTrue(bodyAsText().contains(".bg-white"), "Response should contain compiled Tailwind CSS")
+        }
+    }
+
+    @Test
     fun `root route renders page assets and shell content`() = testApplication {
         application {
             configureRouting()
@@ -50,7 +62,9 @@ class RoutingTest {
         assertTrue(content.contains("Ktor + htmx Showcase", ignoreCase = true), "Response should contain title")
         assertTrue(content.contains("htmx.org@2.0.10", ignoreCase = true), "Response should contain pinned HTMX script")
         assertTrue(content.contains("integrity=\"sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V\""), "Response should contain HTMX integrity")
-        assertTrue(content.contains("tailwindcss", ignoreCase = true), "Response should contain Tailwind script")
+        assertTrue(content.contains("href=\"/app.css\""), "Response should link compiled CSS")
+        assertTrue(content.contains("rel=\"stylesheet\""), "Compiled CSS link should be a stylesheet")
+        assertFalse(content.contains("cdn.tailwindcss.com", ignoreCase = true), "Response should not contain Tailwind Play CDN")
         assertTrue(content.contains("src=\"/pnutz-logo-transparent.svg\""), "Response should use an absolute logo asset path")
         assertTrue(content.contains("href=\"https://github.com/rf43/htmx-ktor\""), "Response should link back to the source repository")
         assertTrue(content.contains("rel=\"noopener noreferrer\""), "Source repository link should use safe external-link attributes")

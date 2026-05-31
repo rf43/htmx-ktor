@@ -1,0 +1,12 @@
+{
+  "name": "htmx-ktor",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/main/resources/styles/tailwind.css -o ./src/main/resources/static/app.css --minify",
+    "watch:css": "tailwindcss -i ./src/main/resources/styles/tailwind.css -o ./src/main/resources/static/app.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.0",
+    "tailwindcss": "4.3.0"
+  }
+}

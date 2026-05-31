@@ -2,9 +2,16 @@ FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
 COPY gradlew settings.gradle.kts build.gradle.kts gradle.properties ./
+COPY package.json package-lock.json ./
 COPY gradle ./gradle
 COPY src ./src
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends nodejs npm \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN npm ci
+RUN npm run build:css
 RUN chmod +x ./gradlew && ./gradlew installDist -Pdevelopment=false --no-daemon
 
 FROM eclipse-temurin:21-jre
