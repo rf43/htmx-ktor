@@ -74,6 +74,8 @@ Rebuild the compiled Tailwind CSS asset:
 npm run build:css
 ```
 
+Gradle packages the current `src/main/resources/static/app.css`; it does not regenerate Tailwind CSS. Run `npm run build:css` after changing Tailwind classes or `src/main/resources/styles/tailwind.css`.
+
 Watch Tailwind source inputs during local UI work:
 
 ```bash
@@ -91,6 +93,8 @@ Build the container image:
 ```bash
 docker build -t htmx-ktor .
 ```
+
+The Docker build regenerates `app.css` before packaging the Ktor distribution.
 
 Run the container locally:
 
