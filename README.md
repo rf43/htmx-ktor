@@ -2,6 +2,8 @@
 
 A small Kotlin/Ktor sample that renders HTML on the server and uses htmx for component-style page updates without a separate JavaScript application framework.
 
+[Live demo](https://htmx-ktor.cursedfunction.io)
+
 This repository is best treated as a compact example or starting point, not as a production-ready web application template.
 
 ## Features
