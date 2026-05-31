@@ -1,0 +1,17 @@
+.git
+.gradle
+.kotlin
+build
+local_docs
+AGENTS.md
+CLAUDE.md
+.cursor
+.claude
+.codex
+.aider*
+.continue
+.DS_Store
+.env
+.env.*
+*.pem
+*.key

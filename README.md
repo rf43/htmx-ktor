@@ -14,6 +14,7 @@ This repository is best treated as a compact example or starting point, not as a
 - Interactive calendar rows that load server-rendered event details
 - Tailwind utility classes loaded through the Tailwind Play CDN
 - Netty-based Ktor server
+- Dockerfile-based container packaging for deployment demos
 - Route and htmx contract tests with Ktor `testApplication`
 - JaCoCo coverage reporting and verification
 
@@ -31,6 +32,7 @@ This repository is best treated as a compact example or starting point, not as a
 
 - JDK 17 or 21
 - No separate Gradle installation is required; use the checked-in Gradle wrapper.
+- Docker is optional and only required for container build checks.
 
 The project was last verified locally with OpenJDK `21.0.10`.
 
@@ -68,6 +70,20 @@ Build the project:
 ./gradlew build
 ```
 
+Build the container image:
+
+```bash
+docker build -t htmx-ktor .
+```
+
+Run the container locally:
+
+```bash
+docker run --rm -p 8080:8080 htmx-ktor
+```
+
+The server reads `PORT` from the environment and defaults to `8080`, which keeps local runs simple while allowing managed platforms to provide the runtime port.
+
 Generate the JaCoCo report:
 
 ```bash
@@ -104,6 +120,8 @@ htmx-ktor/
 |   |       `-- static/
 |   `-- test/kotlin/io/ivycreek/
 |-- build.gradle.kts
+|-- Dockerfile
+|-- .dockerignore
 |-- gradle.properties
 |-- settings.gradle.kts
 `-- gradle/wrapper/
