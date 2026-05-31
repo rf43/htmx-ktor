@@ -7,7 +7,11 @@ This repository is best treated as a compact example or starting point, not as a
 ## Features
 
 - Server-rendered HTML with Ktor and `kotlinx.html`
+- Showcase content that explains the Ktor route and htmx fragment-swap model
 - htmx-powered navigation for dynamic component swaps
+- Active navigation state for direct loads, htmx swaps, and browser history
+- Direct component URLs that still render the full application shell on refresh
+- Interactive calendar rows that load server-rendered event details
 - Tailwind utility classes loaded through the Tailwind Play CDN
 - Netty-based Ktor server
 - Route and htmx contract tests with Ktor `testApplication`
@@ -56,7 +60,7 @@ Run tests:
 ./gradlew test
 ```
 
-The test suite verifies the root application shell, static asset routing, htmx navigation attributes, component route registration, and route-specific component content.
+The test suite verifies the root application shell, static asset routing, htmx navigation attributes, component route registration, and route-specific showcase content.
 
 Build the project:
 
@@ -111,6 +115,7 @@ Each page package generally has two files:
 - `FeatureRouter.kt` registers the `/components/...` route.
 
 The root page and static resource routing live in `src/main/kotlin/io/ivycreek/plugins/Routing.kt`.
+Component routes return fragments for htmx requests and the full application shell for normal browser requests, so pushed URLs remain refreshable and bookmarkable.
 
 ## Notes
 

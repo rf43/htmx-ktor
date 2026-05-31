@@ -47,10 +47,13 @@ class RoutingTest {
         assertTrue(content.contains("</body>", ignoreCase = true), "Response should contain closing body tag")
         
         // Verify specific content
-        assertTrue(content.contains("PNutz + htmx + Tailwind Example", ignoreCase = true), "Response should contain title")
+        assertTrue(content.contains("Ktor + htmx Showcase", ignoreCase = true), "Response should contain title")
         assertTrue(content.contains("htmx.org@2.0.10", ignoreCase = true), "Response should contain pinned HTMX script")
         assertTrue(content.contains("integrity=\"sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V\""), "Response should contain HTMX integrity")
         assertTrue(content.contains("tailwindcss", ignoreCase = true), "Response should contain Tailwind script")
+        assertTrue(content.contains("src=\"/pnutz-logo-transparent.svg\""), "Response should use an absolute logo asset path")
+        assertTrue(content.contains("htmx:afterSettle"), "Response should include active navigation sync after htmx swaps")
+        assertTrue(content.contains("path.startsWith"), "Response should normalize nested component URLs for active navigation")
     }
 
     @Test
@@ -67,8 +70,15 @@ class RoutingTest {
             assertTrue(content.contains("href=\"$path\""), "$tab should link to $path")
             assertTrue(content.contains("hx-get=\"$path\""), "$tab should fetch $path")
         }
+        assertEquals(6, Regex("""data-nav-link="true"""").findAll(content).count(), "Each nav item should be tracked for active state")
         assertEquals(6, Regex("""hx-target="#content"""").findAll(content).count(), "Each nav item should target #content")
+        assertEquals(6, Regex("""hx-swap="outerHTML"""").findAll(content).count(), "Each nav item should replace the content root")
         assertEquals(6, Regex("""hx-push-url="true"""").findAll(content).count(), "Each nav item should push browser history")
+        assertEquals(1, Regex("""aria-current="page"""").findAll(content).count(), "One nav item should be active")
+        assertTrue(
+            Regex("""<a(?=[^>]*href="/components/dashboard")(?=[^>]*aria-current="page")[^>]*>""").containsMatchIn(content),
+            "Dashboard should be active on the root route"
+        )
         assertTrue(content.contains("id=\"content\""), "Root page should include the htmx swap target")
     }
 }
