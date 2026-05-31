@@ -15,11 +15,11 @@ This repository is best treated as a compact example or starting point, not as a
 
 ## Stack
 
-- Kotlin `2.1.20`
-- Ktor `3.1.2`
-- Gradle wrapper `8.4`
-- Logback `1.5.18`
-- JaCoCo `0.8.11`
+- Kotlin `2.3.21`
+- Ktor `3.5.0`
+- Gradle wrapper `9.5.1`
+- Logback `1.5.33`
+- JaCoCo `0.8.14`
 - htmx `1.9.10`
 - Tailwind Play CDN
 
@@ -28,7 +28,7 @@ This repository is best treated as a compact example or starting point, not as a
 - JDK 17 or 21
 - No separate Gradle installation is required; use the checked-in Gradle wrapper.
 
-The project was last verified locally with OpenJDK `21.0.10`. Modernizing the Gradle wrapper should happen before relying on newer JDK releases.
+The project was last verified locally with OpenJDK `21.0.10`.
 
 ## Getting Started
 
