@@ -20,7 +20,7 @@ This repository is best treated as a compact example or starting point, not as a
 - Gradle wrapper `9.5.1`
 - Logback `1.5.33`
 - JaCoCo `0.8.14`
-- htmx `1.9.10`
+- htmx `2.0.10`
 - Tailwind Play CDN
 
 ## Prerequisites
@@ -114,7 +114,7 @@ The root page and static resource routing live in `src/main/kotlin/io/ivycreek/p
 
 - The current frontend setup favors demo simplicity over production asset management.
 - For production-style usage, replace the Tailwind Play CDN with a real Tailwind build that emits static CSS.
-- The project currently loads htmx from a pinned 1.x CDN URL.
+- The project currently loads htmx from a pinned 2.x CDN URL with subresource integrity.
 
 ## License
 
