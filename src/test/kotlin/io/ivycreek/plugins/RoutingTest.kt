@@ -8,7 +8,7 @@ import kotlin.test.*
 
 class RoutingTest {
     @Test
-    fun testRootRoute() = testApplication {
+    fun `root route returns html`() = testApplication {
         application {
             configureRouting()
         }
@@ -20,7 +20,7 @@ class RoutingTest {
     }
 
     @Test
-    fun testStaticResources() = testApplication {
+    fun `static resources are served from the root path`() = testApplication {
         application {
             configureRouting()
         }
@@ -31,13 +31,13 @@ class RoutingTest {
     }
 
     @Test
-    fun testRootRouteContent() = testApplication {
+    fun `root route renders page assets and shell content`() = testApplication {
         application {
             configureRouting()
         }
         val response = client.get("/")
         val content = response.bodyAsText()
-        
+
         // Verify HTML structure
         assertTrue(content.contains("<html", ignoreCase = true), "Response should contain html tag")
         assertTrue(content.contains("</html>", ignoreCase = true), "Response should contain closing html tag")
@@ -51,5 +51,24 @@ class RoutingTest {
         assertTrue(content.contains("htmx.org@2.0.10", ignoreCase = true), "Response should contain pinned HTMX script")
         assertTrue(content.contains("integrity=\"sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V\""), "Response should contain HTMX integrity")
         assertTrue(content.contains("tailwindcss", ignoreCase = true), "Response should contain Tailwind script")
+    }
+
+    @Test
+    fun `root route renders htmx navigation contract`() = testApplication {
+        application {
+            configureRouting()
+        }
+        val content = client.get("/").bodyAsText()
+
+        listOf("Dashboard", "Team", "Projects", "Calendar", "About", "Contact").forEach { tab ->
+            val path = "/components/${tab.lowercase()}"
+
+            assertTrue(content.contains(">$tab</a>"), "Navigation should include $tab link text")
+            assertTrue(content.contains("href=\"$path\""), "$tab should link to $path")
+            assertTrue(content.contains("hx-get=\"$path\""), "$tab should fetch $path")
+        }
+        assertEquals(6, Regex("""hx-target="#content"""").findAll(content).count(), "Each nav item should target #content")
+        assertEquals(6, Regex("""hx-push-url="true"""").findAll(content).count(), "Each nav item should push browser history")
+        assertTrue(content.contains("id=\"content\""), "Root page should include the htmx swap target")
     }
 }

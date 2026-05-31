@@ -10,7 +10,7 @@ This repository is best treated as a compact example or starting point, not as a
 - htmx-powered navigation for dynamic component swaps
 - Tailwind utility classes loaded through the Tailwind Play CDN
 - Netty-based Ktor server
-- Route smoke tests with Ktor `testApplication`
+- Route and htmx contract tests with Ktor `testApplication`
 - JaCoCo coverage reporting and verification
 
 ## Stack
@@ -55,6 +55,8 @@ Run tests:
 ```bash
 ./gradlew test
 ```
+
+The test suite verifies the root application shell, static asset routing, htmx navigation attributes, component route registration, and route-specific component content.
 
 Build the project:
 
