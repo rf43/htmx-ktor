@@ -3,8 +3,8 @@ val kotlin_version: String by project
 val logback_version: String by project
 
 plugins {
-    kotlin("jvm") version "2.1.20"
-    id("io.ktor.plugin") version "3.1.2"
+    kotlin("jvm") version "2.3.21"
+    id("io.ktor.plugin") version "3.5.0"
     id("jacoco")
 }
 
@@ -72,6 +72,6 @@ tasks.check {
 }
 
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = "0.8.14"
     reportsDirectory.set(layout.buildDirectory.dir("reports/jacoco"))
 }
