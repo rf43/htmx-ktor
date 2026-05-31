@@ -52,6 +52,8 @@ class RoutingTest {
         assertTrue(content.contains("integrity=\"sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V\""), "Response should contain HTMX integrity")
         assertTrue(content.contains("tailwindcss", ignoreCase = true), "Response should contain Tailwind script")
         assertTrue(content.contains("src=\"/pnutz-logo-transparent.svg\""), "Response should use an absolute logo asset path")
+        assertTrue(content.contains("href=\"https://github.com/rf43/htmx-ktor\""), "Response should link back to the source repository")
+        assertTrue(content.contains("rel=\"noopener noreferrer\""), "Source repository link should use safe external-link attributes")
         assertTrue(content.contains("htmx:afterSettle"), "Response should include active navigation sync after htmx swaps")
         assertTrue(content.contains("path.startsWith"), "Response should normalize nested component URLs for active navigation")
     }

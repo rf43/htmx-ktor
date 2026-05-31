@@ -3,6 +3,7 @@ package io.ivycreek.navbar
 import kotlinx.html.*
 
 private const val DASHBOARD_PATH = "/components/dashboard"
+private const val SOURCE_REPOSITORY_URL = "https://github.com/rf43/htmx-ktor"
 
 private val navBaseClasses = setOf(
     "hover:bg-gray-700",
@@ -16,6 +17,7 @@ private val navBaseClasses = setOf(
 
 private val activeNavClasses = navBaseClasses + setOf("bg-gray-800", "text-white")
 private val inactiveNavClasses = navBaseClasses + setOf("text-gray-700")
+private val sourceLinkClasses = navBaseClasses + setOf("text-gray-950", "underline", "decoration-gray-700", "underline-offset-4")
 
 fun FlowContent.navbar(activePath: String = DASHBOARD_PATH, vararg tabs: String) = nav {
     classes = setOf("bg-gray-400")
@@ -49,6 +51,13 @@ fun FlowContent.navbar(activePath: String = DASHBOARD_PATH, vararg tabs: String)
                         classes = if (active) activeNavClasses else inactiveNavClasses
                         +it
                     }
+                }
+                a {
+                    href = SOURCE_REPOSITORY_URL
+                    target = "_blank"
+                    rel = "noopener noreferrer"
+                    classes = sourceLinkClasses
+                    +"Source"
                 }
             }
         }
