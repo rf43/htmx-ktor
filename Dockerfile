@@ -12,7 +12,11 @@ RUN apt-get update \
 
 RUN npm ci
 RUN npm run build:css
-RUN chmod +x ./gradlew && ./gradlew installDist -Pdevelopment=false --no-daemon
+RUN chmod +x ./gradlew \
+    && ./gradlew installDist \
+        -Pdevelopment=false \
+        -Pkotlin.compiler.execution.strategy=in-process \
+        --no-daemon
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app

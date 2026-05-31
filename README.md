@@ -95,6 +95,7 @@ docker build -t htmx-ktor .
 ```
 
 The Docker build regenerates `app.css` before packaging the Ktor distribution.
+The Docker build runs Kotlin compilation in-process to avoid short-lived Kotlin daemon files during hosted image builds.
 
 Run the container locally:
 
