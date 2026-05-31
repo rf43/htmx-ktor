@@ -24,12 +24,9 @@ class RoutingTest {
         application {
             configureRouting()
         }
-        // Test that static resources are served
-        client.get("/static/css/styles.css").apply {
-            // Note: This will return 404 if the file doesn't exist, which is expected
-            // The important thing is that the route is handled
-            assertTrue(status == HttpStatusCode.NotFound || status == HttpStatusCode.OK, 
-                "Static resource route should be handled")
+        client.get("/pnutz-logo-transparent.svg").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals(ContentType.Image.SVG, contentType()?.withoutParameters())
         }
     }
 
@@ -51,7 +48,8 @@ class RoutingTest {
         
         // Verify specific content
         assertTrue(content.contains("PNutz + htmx + Tailwind Example", ignoreCase = true), "Response should contain title")
-        assertTrue(content.contains("htmx.org", ignoreCase = true), "Response should contain HTMX script")
+        assertTrue(content.contains("htmx.org@2.0.10", ignoreCase = true), "Response should contain pinned HTMX script")
+        assertTrue(content.contains("integrity=\"sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V\""), "Response should contain HTMX integrity")
         assertTrue(content.contains("tailwindcss", ignoreCase = true), "Response should contain Tailwind script")
     }
-} 
+}
