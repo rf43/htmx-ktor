@@ -12,7 +12,7 @@ This repository is best treated as a compact example or starting point, not as a
 - Active navigation state for direct loads, htmx swaps, and browser history
 - Direct component URLs that still render the full application shell on refresh
 - Interactive calendar rows that load server-rendered event details
-- Tailwind utility classes loaded through the Tailwind Play CDN
+- Tailwind utility classes compiled into a static CSS asset
 - Netty-based Ktor server
 - Dockerfile-based container packaging for deployment demos
 - Route and htmx contract tests with Ktor `testApplication`
@@ -26,11 +26,13 @@ This repository is best treated as a compact example or starting point, not as a
 - Logback `1.5.33`
 - JaCoCo `0.8.14`
 - htmx `2.0.10`
-- Tailwind Play CDN
+- Tailwind CSS `4.3.0`
+- Tailwind CLI `4.3.0`
 
 ## Prerequisites
 
 - JDK 17 or 21
+- Node.js and npm for rebuilding Tailwind CSS
 - No separate Gradle installation is required; use the checked-in Gradle wrapper.
 - Docker is optional and only required for container build checks.
 
@@ -41,6 +43,8 @@ The project was last verified locally with OpenJDK `21.0.10`.
 ```bash
 git clone https://github.com/rf43/htmx-ktor.git
 cd htmx-ktor
+npm ci
+npm run build:css
 ./gradlew run
 ```
 
@@ -64,6 +68,20 @@ Run tests:
 
 The test suite verifies the root application shell, static asset routing, htmx navigation attributes, component route registration, and route-specific showcase content.
 
+Rebuild the compiled Tailwind CSS asset:
+
+```bash
+npm run build:css
+```
+
+Gradle packages the current `src/main/resources/static/app.css`; it does not regenerate Tailwind CSS. Run `npm run build:css` after changing Tailwind classes or `src/main/resources/styles/tailwind.css`.
+
+Watch Tailwind source inputs during local UI work:
+
+```bash
+npm run watch:css
+```
+
 Build the project:
 
 ```bash
@@ -75,6 +93,8 @@ Build the container image:
 ```bash
 docker build -t htmx-ktor .
 ```
+
+The Docker build regenerates `app.css` before packaging the Ktor distribution.
 
 Run the container locally:
 
@@ -117,10 +137,13 @@ htmx-ktor/
 |   |   |   `-- Application.kt
 |   |   `-- resources/
 |   |       |-- logback.xml
+|   |       |-- styles/
 |   |       `-- static/
 |   `-- test/kotlin/io/ivycreek/
 |-- build.gradle.kts
 |-- Dockerfile
+|-- package.json
+|-- package-lock.json
 |-- .dockerignore
 |-- gradle.properties
 |-- settings.gradle.kts
@@ -137,8 +160,7 @@ Component routes return fragments for htmx requests and the full application she
 
 ## Notes
 
-- The current frontend setup favors demo simplicity over production asset management.
-- For production-style usage, replace the Tailwind Play CDN with a real Tailwind build that emits static CSS.
+- Tailwind is built with the CLI from `src/main/resources/styles/tailwind.css` into `src/main/resources/static/app.css`, which Ktor serves at `/app.css`.
 - The project currently loads htmx from a pinned 2.x CDN URL with subresource integrity.
 
 ## License

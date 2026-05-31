@@ -51,7 +51,7 @@ fun HTML.index(activePath: String = "/components/dashboard", pageContent: FlowCo
             attributes["integrity"] = HTMX_SCRIPT_INTEGRITY
             attributes["crossorigin"] = "anonymous"
         }
-        script { src = "https://cdn.tailwindcss.com" }
+        link(rel = "stylesheet", href = "/app.css")
         script {
             unsafe {
                 +ACTIVE_NAVIGATION_SCRIPT

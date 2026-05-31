@@ -24,6 +24,7 @@ class ComponentRouteTest {
             assertEquals(1, Regex("""id="content"""").findAll(content).count(), "${expected.path} should render one content root")
             assertFalse(content.contains("data-nav-link"), "${expected.path} should not include navigation links")
             assertFalse(content.contains("htmx.org@"), "${expected.path} should not include root page scripts")
+            assertFalse(content.contains("/app.css"), "${expected.path} should not include root page stylesheets")
             assertTrue(content.contains("<h1"), "${expected.path} should include a page heading")
             assertTrue(content.contains(expected.heading), "${expected.path} should include heading ${expected.heading}")
             expected.requiredText.forEach { text ->
@@ -67,6 +68,8 @@ class ComponentRouteTest {
         assertTrue(content.contains("Route contract test review"))
         assertTrue(content.contains("The detail endpoint can be tested directly"))
         assertTrue(content.contains("htmx.org@2.0.10"))
+        assertTrue(content.contains("href=\"/app.css\""))
+        assertFalse(content.contains("cdn.tailwindcss.com"))
         assertEquals(1, Regex("""id="content"""").findAll(content).count())
         assertTrue(
             Regex("""<a(?=[^>]*href="/components/calendar")(?=[^>]*aria-current="page")[^>]*>""").containsMatchIn(content),
@@ -99,7 +102,8 @@ class ComponentRouteTest {
             assertEquals(ContentType.Text.Html, response.contentType()?.withoutParameters())
             assertTrue(content.contains("Ktor + htmx Showcase"), "${expected.path} should include the app title")
             assertTrue(content.contains("htmx.org@2.0.10"), "${expected.path} should include the htmx script")
-            assertTrue(content.contains("tailwindcss"), "${expected.path} should include Tailwind")
+            assertTrue(content.contains("href=\"/app.css\""), "${expected.path} should link compiled CSS")
+            assertFalse(content.contains("cdn.tailwindcss.com"), "${expected.path} should not include Tailwind Play CDN")
             assertTrue(content.contains("hx-get="), "${expected.path} should include navigation links")
             assertEquals(1, Regex("""id="content"""").findAll(content).count(), "${expected.path} should render one content root")
             assertEquals(1, Regex("""aria-current="page"""").findAll(content).count(), "${expected.path} should render one active navigation item")

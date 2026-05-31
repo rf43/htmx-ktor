@@ -1,0 +1,4 @@
+@import "tailwindcss" source(none);
+
+@source "../../kotlin";
+@source "../static/test.html";
