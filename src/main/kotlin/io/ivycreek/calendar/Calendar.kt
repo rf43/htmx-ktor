@@ -101,9 +101,10 @@ fun FlowContent.calendar(selectedEventId: String = calendarEvents.first().id) = 
                                                 classes = setOf("px-6", "py-4", "whitespace-nowrap")
                                                 div {
                                                     classes = setOf("flex", "items-center")
-                                                    button {
-                                                        type = ButtonType.button
-                                                        attributes["hx-get"] = "/components/calendar/${it.id}"
+                                                    a {
+                                                        val eventPath = "/components/calendar/${it.id}"
+                                                        href = eventPath
+                                                        attributes["hx-get"] = eventPath
                                                         attributes["hx-target"] = "#calendar-event-detail"
                                                         attributes["hx-swap"] = "innerHTML"
                                                         classes = setOf("text-left", "text-sm", "font-medium", "text-cyan-700", "hover:text-cyan-900", "focus:outline-none", "focus:ring-2", "focus:ring-cyan-600", "focus:ring-offset-2")

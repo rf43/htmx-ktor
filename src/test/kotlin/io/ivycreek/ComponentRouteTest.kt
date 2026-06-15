@@ -54,6 +54,26 @@ class ComponentRouteTest {
     }
 
     @Test
+    fun `calendar event links work with and without htmx`() = testApplication {
+        application {
+            module()
+        }
+
+        val response = client.get("/components/calendar") {
+            header("HX-Request", "true")
+        }
+        val content = response.bodyAsText()
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        calendarEventPaths.forEach { path ->
+            assertTrue(
+                Regex("""<a(?=[^>]*href="$path")(?=[^>]*hx-get="$path")(?=[^>]*hx-target="#calendar-event-detail")(?=[^>]*hx-swap="innerHTML")[^>]*>""").containsMatchIn(content),
+                "$path should render as a normal link enhanced with htmx"
+            )
+        }
+    }
+
+    @Test
     fun `calendar event route renders full calendar shell for direct browser requests`() = testApplication {
         application {
             module()
@@ -136,6 +156,12 @@ class ComponentRouteTest {
     )
 
     private companion object {
+        private val calendarEventPaths = listOf(
+            "/components/calendar/ktor-routing",
+            "/components/calendar/htmx-fragment-swap",
+            "/components/calendar/route-contract-tests"
+        )
+
         private val componentExpectations = listOf(
             ComponentExpectation(
                 path = "/components/dashboard",
