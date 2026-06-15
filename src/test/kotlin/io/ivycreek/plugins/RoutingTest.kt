@@ -43,6 +43,37 @@ class RoutingTest {
     }
 
     @Test
+    fun `sitemap lists deployed application url`() = testApplication {
+        application {
+            configureRouting()
+        }
+        client.get("/sitemap.xml").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals(ContentType.Application.Xml, contentType()?.withoutParameters())
+
+            val content = bodyAsText()
+            assertTrue(content.contains("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">"))
+            assertTrue(content.contains("<loc>https://htmx-ktor.cursedfunction.io/</loc>"))
+        }
+    }
+
+    @Test
+    fun `robots txt advertises sitemap`() = testApplication {
+        application {
+            configureRouting()
+        }
+        client.get("/robots.txt").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals(ContentType.Text.Plain, contentType()?.withoutParameters())
+
+            val content = bodyAsText()
+            assertTrue(content.contains("User-agent: *"))
+            assertTrue(content.contains("Allow: /"))
+            assertTrue(content.contains("Sitemap: https://htmx-ktor.cursedfunction.io/sitemap.xml"))
+        }
+    }
+
+    @Test
     fun `root route renders page assets and shell content`() = testApplication {
         application {
             configureRouting()
