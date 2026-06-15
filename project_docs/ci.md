@@ -24,8 +24,15 @@ The workflow currently runs:
 
 CI uses Temurin JDK 21 on Ubuntu. The local README also allows JDK 17 or 21, but JDK 21 is the documented local verification version and keeps CI aligned with the current development environment.
 
+The workflow passes `PUBLIC_SITE_URL` from the repository variable with a placeholder fallback:
+
+```yaml
+PUBLIC_SITE_URL: "${{ vars.PUBLIC_SITE_URL || 'https://example.com/' }}"
+```
+
 ## Notes
 
 - The workflow does not deploy the application. Deployment is handled by the hosting platform after changes reach `main`.
+- CI does not require repository-specific configuration in forks; if `PUBLIC_SITE_URL` is not set as a repository variable, the workflow uses `https://example.com/`.
 - Gradle packages the checked-in `src/main/resources/static/app.css`; CI does not rebuild Tailwind CSS.
 - Run `npm run build:css` locally and commit the resulting CSS asset when Tailwind source or utility classes change.

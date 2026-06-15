@@ -24,6 +24,7 @@ WORKDIR /app
 COPY --from=build /app/build/install/htmx-ktor ./
 
 ENV PORT=8080
+ENV PUBLIC_SITE_URL=https://example.com/
 EXPOSE 8080
 
 USER 10001
