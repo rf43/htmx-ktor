@@ -122,10 +122,20 @@ Verify coverage:
 
 The HTML coverage report is written to `build/reports/jacoco/test/html/index.html`.
 
+## Operations
+
+- [CI](project_docs/ci.md) documents the GitHub Actions checks for pull requests and pushes to `main`.
+- [Deployment](project_docs/deployment.md) documents the DigitalOcean App Platform demo deployment, search endpoints, and rollback notes.
+
 ## Project Structure
 
 ```text
 htmx-ktor/
+|-- .github/workflows/
+|   `-- ci.yml
+|-- project_docs/
+|   |-- ci.md
+|   `-- deployment.md
 |-- src/
 |   |-- main/
 |   |   |-- kotlin/io/ivycreek/
