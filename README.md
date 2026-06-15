@@ -16,6 +16,7 @@ This repository is best treated as a compact example or starting point, not as a
 - Interactive calendar rows that load server-rendered event details
 - Tailwind utility classes compiled into a static CSS asset
 - Netty-based Ktor server
+- Sitemap and robots.txt endpoints for the deployed demo URL
 - Dockerfile-based container packaging for deployment demos
 - Route and htmx contract tests with Ktor `testApplication`
 - JaCoCo coverage reporting and verification
