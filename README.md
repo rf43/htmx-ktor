@@ -16,7 +16,7 @@ This repository is best treated as a compact example or starting point, not as a
 - Interactive calendar rows that load server-rendered event details
 - Tailwind utility classes compiled into a static CSS asset
 - Netty-based Ktor server
-- Sitemap and robots.txt endpoints for the deployed demo URL
+- Sitemap and robots.txt endpoints for the configured public URL
 - Dockerfile-based container packaging for deployment demos
 - Route and htmx contract tests with Ktor `testApplication`
 - JaCoCo coverage reporting and verification
@@ -107,6 +107,15 @@ docker run --rm -p 8080:8080 htmx-ktor
 ```
 
 The server reads `PORT` from the environment and defaults to `8080`, which keeps local runs simple while allowing managed platforms to provide the runtime port.
+
+## Configuration
+
+The application supports these environment variables:
+
+- `PORT` - HTTP port used by the Netty server. Defaults to `8080`.
+- `PUBLIC_SITE_URL` - absolute public base URL used by `/sitemap.xml` and `/robots.txt`. Defaults to `https://example.com/`.
+
+Set `PUBLIC_SITE_URL` in the deployment environment so generated search endpoints point at the deployed site. Forks should set this to their own public URL rather than changing source code.
 
 Generate the JaCoCo report:
 

@@ -43,9 +43,9 @@ class RoutingTest {
     }
 
     @Test
-    fun `sitemap lists deployed application url`() = testApplication {
+    fun `sitemap uses placeholder site url for blank configuration`() = testApplication {
         application {
-            configureRouting()
+            configureRouting(siteUrl = "")
         }
         client.get("/sitemap.xml").apply {
             assertEquals(HttpStatusCode.OK, status)
@@ -53,14 +53,28 @@ class RoutingTest {
 
             val content = bodyAsText()
             assertTrue(content.contains("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">"))
-            assertTrue(content.contains("<loc>https://htmx-ktor.cursedfunction.io/</loc>"))
+            assertTrue(content.contains("<loc>https://example.com/</loc>"))
         }
     }
 
     @Test
-    fun `robots txt advertises sitemap`() = testApplication {
+    fun `sitemap uses configured site url`() = testApplication {
         application {
-            configureRouting()
+            configureRouting(siteUrl = "https://demo.example.test")
+        }
+        client.get("/sitemap.xml").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals(ContentType.Application.Xml, contentType()?.withoutParameters())
+
+            val content = bodyAsText()
+            assertTrue(content.contains("<loc>https://demo.example.test/</loc>"))
+        }
+    }
+
+    @Test
+    fun `robots txt advertises sitemap for configured site url`() = testApplication {
+        application {
+            configureRouting(siteUrl = "https://demo.example.test")
         }
         client.get("/robots.txt").apply {
             assertEquals(HttpStatusCode.OK, status)
@@ -69,7 +83,7 @@ class RoutingTest {
             val content = bodyAsText()
             assertTrue(content.contains("User-agent: *"))
             assertTrue(content.contains("Allow: /"))
-            assertTrue(content.contains("Sitemap: https://htmx-ktor.cursedfunction.io/sitemap.xml"))
+            assertTrue(content.contains("Sitemap: https://demo.example.test/sitemap.xml"))
         }
     }
 

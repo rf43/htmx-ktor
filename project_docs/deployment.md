@@ -10,6 +10,14 @@ https://htmx-ktor.cursedfunction.io/
 
 The canonical demo is deployed through DigitalOcean App Platform from this repository. Changes that land on `main` trigger the hosting platform's deployment path for that demo.
 
+The canonical deployment should set:
+
+```text
+PUBLIC_SITE_URL=https://htmx-ktor.cursedfunction.io/
+```
+
+For GitHub Actions, this value can live in the repository variable named `PUBLIC_SITE_URL`. For DigitalOcean App Platform, set the same name as an application environment variable so the running server uses the canonical public URL.
+
 This repository intentionally keeps deployment automation separate from CI:
 
 - GitHub Actions validates pull requests and pushes to `main`.
@@ -21,11 +29,13 @@ That keeps the repository checks focused on test and build health without duplic
 
 Forks do not need DigitalOcean to run or deploy the project. The application can be run locally with Gradle, packaged as a container with the included `Dockerfile`, or deployed to any platform that supports JVM applications or Docker images.
 
-If a fork uses a different public URL, update the sitemap and robots configuration in `src/main/kotlin/io/ivycreek/plugins/Routing.kt` before deploying.
+If a fork uses a different public URL, set `PUBLIC_SITE_URL` in that deployment environment. The source code defaults to `https://example.com/` as a placeholder so forks do not inherit the canonical demo URL.
 
 ## Container Build
 
 The included `Dockerfile` installs Node dependencies, rebuilds the Tailwind CSS asset, packages the Ktor application, and runs the server on the port supplied by the platform.
+
+The container image defaults `PUBLIC_SITE_URL` to `https://example.com/`. Override it in the hosting environment for any real deployment.
 
 For a local container check:
 
@@ -36,14 +46,14 @@ docker run --rm -p 8080:8080 htmx-ktor
 
 ## Search Endpoints
 
-The canonical deployed demo exposes:
+The application exposes:
 
 ```text
-https://htmx-ktor.cursedfunction.io/sitemap.xml
-https://htmx-ktor.cursedfunction.io/robots.txt
+${PUBLIC_SITE_URL}sitemap.xml
+${PUBLIC_SITE_URL}robots.txt
 ```
 
-Both endpoints are implemented in `src/main/kotlin/io/ivycreek/plugins/Routing.kt`.
+Both endpoints are implemented in `src/main/kotlin/io/ivycreek/plugins/Routing.kt` and use the configured `PUBLIC_SITE_URL`.
 
 As of June 15, 2026, the canonical live endpoints returned `200 OK`, Google Search Console showed the `htmx-ktor` sitemap as successful, and the sitemap reported one discovered page.
 
@@ -57,7 +67,7 @@ If a bad release reaches production, use the least invasive rollback available:
 After rollback, verify:
 
 ```bash
-curl -I https://htmx-ktor.cursedfunction.io/
-curl -I https://htmx-ktor.cursedfunction.io/sitemap.xml
-curl -I https://htmx-ktor.cursedfunction.io/robots.txt
+curl -I "$PUBLIC_SITE_URL"
+curl -I "${PUBLIC_SITE_URL}sitemap.xml"
+curl -I "${PUBLIC_SITE_URL}robots.txt"
 ```
