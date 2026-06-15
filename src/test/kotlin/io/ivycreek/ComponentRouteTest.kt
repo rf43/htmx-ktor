@@ -70,6 +70,10 @@ class ComponentRouteTest {
                 Regex("""<a(?=[^>]*href="$path")(?=[^>]*hx-get="$path")(?=[^>]*hx-target="#calendar-event-detail")(?=[^>]*hx-swap="innerHTML")[^>]*>""").containsMatchIn(content),
                 "$path should render as a normal link enhanced with htmx"
             )
+            assertTrue(
+                Regex("""<tr(?=[^>]*hx-get="$path")(?=[^>]*hx-target="#calendar-event-detail")(?=[^>]*hx-swap="innerHTML")(?=[^>]*hx-trigger="click\[event.target.tagName !== 'A'\]")(?=[^>]*tabindex="0")(?=[^>]*role="link")[^>]*>""").containsMatchIn(content),
+                "$path should render a clickable, keyboard-focusable row"
+            )
         }
     }
 

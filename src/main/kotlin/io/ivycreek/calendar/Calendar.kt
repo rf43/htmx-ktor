@@ -95,14 +95,23 @@ fun FlowContent.calendar(selectedEventId: String = calendarEvents.first().id) = 
                                 tbody {
                                     classes = setOf("divide-y", "divide-gray-200", "bg-white")
                                     calendarEvents.map {
+                                        val eventPath = "/components/calendar/${it.id}"
                                         tr {
-                                            classes = setOf("bg-white", "hover:bg-gray-50")
+                                            attributes["hx-get"] = eventPath
+                                            attributes["hx-target"] = "#calendar-event-detail"
+                                            attributes["hx-swap"] = "innerHTML"
+                                            attributes["hx-trigger"] = "click[event.target.tagName !== 'A']"
+                                            attributes["tabindex"] = "0"
+                                            attributes["role"] = "link"
+                                            attributes["aria-label"] = "View details for ${it.title}"
+                                            attributes["onclick"] = "if (!window.htmx && event.target.tagName !== 'A') location.href = '$eventPath'"
+                                            attributes["onkeydown"] = "if ((event.key === 'Enter' || event.key === ' ') && event.target === this) { event.preventDefault(); if (window.htmx) { htmx.ajax('GET', '$eventPath', { target: '#calendar-event-detail', swap: 'innerHTML' }); } else { location.href = '$eventPath'; } }"
+                                            classes = setOf("bg-white", "hover:bg-gray-50", "focus:outline-none", "focus:ring-2", "focus:ring-inset", "focus:ring-cyan-600", "cursor-pointer")
                                             td {
                                                 classes = setOf("px-6", "py-4", "whitespace-nowrap")
                                                 div {
                                                     classes = setOf("flex", "items-center")
                                                     a {
-                                                        val eventPath = "/components/calendar/${it.id}"
                                                         href = eventPath
                                                         attributes["hx-get"] = eventPath
                                                         attributes["hx-target"] = "#calendar-event-detail"
