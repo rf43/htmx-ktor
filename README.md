@@ -183,6 +183,7 @@ Each page package generally has two files:
 The root page and static resource routing live in `src/main/kotlin/io/ivycreek/plugins/Routing.kt`.
 Component routes return fragments for htmx requests and the full application shell for normal browser requests, so pushed URLs remain refreshable and bookmarkable.
 The incident workspace uses ordinary GET query parameters for search, filters, sorting, and paging. htmx submits the same URLs and swaps only the queue or detail region.
+Direct incident URLs normalize filter and page context so the selected incident remains visible in the queue after a refresh.
 
 ## Notes
 

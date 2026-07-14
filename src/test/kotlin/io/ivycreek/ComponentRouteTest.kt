@@ -1,5 +1,6 @@
 package io.ivycreek
 
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -178,6 +179,32 @@ class ComponentRouteTest {
         assertTrue(
             Regex("""<a(?=[^>]*href="/components/incidents")(?=[^>]*aria-current="page")[^>]*>""").containsMatchIn(content),
             "Incidents should remain active on direct detail routes"
+        )
+    }
+
+    @Test
+    fun `direct incident routes normalize filters and paging around the selected incident`() = testApplication {
+        application {
+            module()
+        }
+        val noRedirectClient = createClient {
+            followRedirects = false
+        }
+
+        val conflictingFilters = noRedirectClient.get(
+            "/components/incidents/inc-1048?q=staging&status=resolved&severity=low&page=3&sort=status"
+        )
+        assertEquals(HttpStatusCode.Found, conflictingFilters.status)
+        assertEquals(
+            "/components/incidents/inc-1048?sort=status",
+            conflictingFilters.headers[HttpHeaders.Location]
+        )
+
+        val wrongPage = noRedirectClient.get("/components/incidents/inc-1041?page=1")
+        assertEquals(HttpStatusCode.Found, wrongPage.status)
+        assertEquals(
+            "/components/incidents/inc-1041?page=3",
+            wrongPage.headers[HttpHeaders.Location]
         )
     }
 

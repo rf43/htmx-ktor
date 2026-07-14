@@ -56,6 +56,18 @@ internal data class IncidentQuery(
 
     fun detailPath(incidentId: String): String = queryPath("$INCIDENTS_PATH/$incidentId", page)
 
+    fun containing(incident: Incident): IncidentQuery {
+        val normalizedFilters = copy(
+            search = search.takeIf { incident.matchesSearch(it) }.orEmpty(),
+            status = status?.takeIf { it == incident.status },
+            severity = severity?.takeIf { it == incident.severity },
+            page = 1
+        )
+        val incidentIndex = matchingIncidents(normalizedFilters).indexOfFirst { it.id == incident.id }
+        check(incidentIndex >= 0) { "Normalized incident query must contain ${incident.id}" }
+        return normalizedFilters.copy(page = incidentIndex / PAGE_SIZE + 1)
+    }
+
     private fun queryPath(path: String, page: Int): String {
         val parameters = buildList {
             if (search.isNotBlank()) add("q" to search)
@@ -195,21 +207,7 @@ internal val incidents = listOf(
 internal fun findIncident(incidentId: String?) = incidents.find { it.id == incidentId }
 
 internal fun findIncidents(query: IncidentQuery): IncidentResults {
-    val matching = incidents
-        .asSequence()
-        .filter { incident ->
-            query.search.isBlank() || listOf(
-                incident.id,
-                incident.title,
-                incident.service,
-                incident.environment,
-                incident.summary
-            ).any { it.contains(query.search, ignoreCase = true) }
-        }
-        .filter { query.status == null || it.status == query.status }
-        .filter { query.severity == null || it.severity == query.severity }
-        .sortedWith(incidentComparator(query.sort))
-        .toList()
+    val matching = matchingIncidents(query)
 
     val totalPages = maxOf(1, (matching.size + PAGE_SIZE - 1) / PAGE_SIZE)
     val page = query.page.coerceAtMost(totalPages)
@@ -221,6 +219,22 @@ internal fun findIncidents(query: IncidentQuery): IncidentResults {
         totalPages = totalPages
     )
 }
+
+private fun matchingIncidents(query: IncidentQuery) = incidents
+    .asSequence()
+    .filter { it.matchesSearch(query.search) }
+    .filter { query.status == null || it.status == query.status }
+    .filter { query.severity == null || it.severity == query.severity }
+    .sortedWith(incidentComparator(query.sort))
+    .toList()
+
+private fun Incident.matchesSearch(search: String) = search.isBlank() || listOf(
+    id,
+    title,
+    service,
+    environment,
+    summary
+).any { it.contains(search, ignoreCase = true) }
 
 private fun incidentComparator(sort: IncidentSort): Comparator<Incident> = when (sort) {
     IncidentSort.NEWEST -> compareByDescending(Incident::reportedAt)

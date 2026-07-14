@@ -43,9 +43,15 @@ fun Application.incidentsRouter() {
                     }
                 } else {
                     val query = IncidentQuery.from(call.request.queryParameters)
-                    call.respondHtml(HttpStatusCode.OK) {
-                        index(INCIDENTS_PATH) {
-                            incidentsPage(query, incident.id)
+                    val canonicalQuery = query.containing(incident)
+
+                    if (canonicalQuery != query) {
+                        call.respondRedirect(canonicalQuery.detailPath(incident.id))
+                    } else {
+                        call.respondHtml(HttpStatusCode.OK) {
+                            index(INCIDENTS_PATH) {
+                                incidentsPage(query, incident.id)
+                            }
                         }
                     }
                 }
