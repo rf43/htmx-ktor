@@ -9,12 +9,13 @@ import io.ktor.server.html.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.time.Instant
 import kotlinx.html.body
 
 private const val HTMX_TARGET_HEADER = "HX-Target"
 private const val INCIDENT_WORKSPACE_TARGET = "incident-workspace"
 
-fun Application.incidentsRouter() {
+fun Application.incidentsRouter(activityNow: () -> Instant = Instant::now) {
     routing {
         route(INCIDENTS_PATH) {
             get {
@@ -27,7 +28,25 @@ fun Application.incidentsRouter() {
                         }
                     }
                 } else {
-                    call.respondComponent { incidentsPage(query) }
+                    call.respondComponent { incidentsPage(query, activityCheckedAt = activityNow()) }
+                }
+            }
+            get("/activity") {
+                val checkedAt = activityNow()
+
+                if (call.request.isHtmxRequest()) {
+                    call.respondHtml(HttpStatusCode.OK) {
+                        body {
+                            incidentActivity(checkedAt)
+                        }
+                    }
+                } else {
+                    val query = IncidentQuery.from(call.request.queryParameters)
+                    call.respondHtml(HttpStatusCode.OK) {
+                        index(INCIDENTS_PATH) {
+                            incidentsPage(query, activityCheckedAt = checkedAt)
+                        }
+                    }
                 }
             }
             get("/{incidentId}") {
@@ -50,7 +69,7 @@ fun Application.incidentsRouter() {
                     } else {
                         call.respondHtml(HttpStatusCode.OK) {
                             index(INCIDENTS_PATH) {
-                                incidentsPage(query, incident.id)
+                                incidentsPage(query, incident.id, activityNow())
                             }
                         }
                     }
