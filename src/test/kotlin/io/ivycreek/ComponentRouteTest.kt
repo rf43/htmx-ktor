@@ -1,5 +1,6 @@
 package io.ivycreek
 
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -34,80 +35,186 @@ class ComponentRouteTest {
     }
 
     @Test
-    fun `calendar event route renders event details for htmx requests`() = testApplication {
+    fun `incident detail route renders only the detail region for htmx requests`() = testApplication {
         application {
             module()
         }
 
-        val response = client.get("/components/calendar/htmx-fragment-swap") {
+        val response = client.get("/components/incidents/inc-1047") {
             header("HX-Request", "true")
         }
         val content = response.bodyAsText()
 
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals(ContentType.Text.Html, response.contentType()?.withoutParameters())
-        assertTrue(content.contains("Event details"))
-        assertTrue(content.contains("htmx fragment swap demo"))
-        assertTrue(content.contains("Compare hx-get, hx-target, and hx-swap"))
+        assertTrue(content.contains("id=\"incident-detail\""))
+        assertTrue(content.contains("Delayed inventory synchronization"))
+        assertTrue(content.contains("Fulfillment platform"))
+        assertTrue(content.contains("The queue has drained"))
+        assertFalse(content.contains("id=\"incident-workspace\""))
         assertFalse(content.contains("data-nav-link"), "Detail fragments should not include navigation")
         assertFalse(content.contains("htmx.org@"), "Detail fragments should not include root page scripts")
     }
 
     @Test
-    fun `calendar event links work with and without htmx`() = testApplication {
+    fun `incident controls preserve normal browser fallbacks and add focused htmx swaps`() = testApplication {
         application {
             module()
         }
 
-        val response = client.get("/components/calendar") {
+        val response = client.get("/components/incidents") {
             header("HX-Request", "true")
         }
         val content = response.bodyAsText()
 
         assertEquals(HttpStatusCode.OK, response.status)
-        calendarEventPaths.forEach { path ->
-            assertTrue(
-                Regex("""<a(?=[^>]*href="$path")(?=[^>]*hx-get="$path")(?=[^>]*hx-target="#calendar-event-detail")(?=[^>]*hx-swap="innerHTML")[^>]*>""").containsMatchIn(content),
-                "$path should render as a normal link enhanced with htmx"
-            )
-            assertTrue(
-                Regex("""<tr(?=[^>]*hx-get="$path")(?=[^>]*hx-target="#calendar-event-detail")(?=[^>]*hx-swap="innerHTML")(?=[^>]*hx-trigger="click\[event.target.tagName !== 'A'\]")(?=[^>]*tabindex="0")(?=[^>]*role="link")[^>]*>""").containsMatchIn(content),
-                "$path should render a clickable, keyboard-focusable row"
-            )
-        }
+        assertTrue(
+            Regex("""<form(?=[^>]*action="/components/incidents")(?=[^>]*method="get")(?=[^>]*id="incident-filters")(?=[^>]*hx-get="/components/incidents")(?=[^>]*hx-target="#incident-workspace")(?=[^>]*hx-push-url="true")[^>]*>""").containsMatchIn(content),
+            "Filters should use an ordinary GET form enhanced with htmx"
+        )
+        assertTrue(content.contains("name=\"q\""))
+        assertTrue(content.contains("hx-trigger=\"input changed delay:300ms, search\""))
+        assertTrue(content.contains("name=\"status\""))
+        assertTrue(content.contains("name=\"severity\""))
+        assertTrue(content.contains("name=\"sort\""))
+        assertTrue(
+            Regex("""<a(?=[^>]*href="/components/incidents/inc-1048")(?=[^>]*hx-get="/components/incidents/inc-1048")(?=[^>]*hx-target="#incident-detail")(?=[^>]*hx-swap="outerHTML")(?=[^>]*hx-push-url="true")[^>]*>""").containsMatchIn(content),
+            "Incident details should use normal links enhanced with focused htmx swaps"
+        )
+        assertTrue(
+            Regex("""<a(?=[^>]*href="/components/incidents\?page=2")(?=[^>]*hx-get="/components/incidents\?page=2")(?=[^>]*hx-target="#incident-workspace")(?=[^>]*hx-push-url="true")[^>]*>Next</a>""").containsMatchIn(content),
+            "Pagination should retain a normal URL fallback"
+        )
+        assertTrue(
+            Regex("""<a(?=[^>]*href="/components/incidents")(?=[^>]*hx-get="/components/incidents")(?=[^>]*hx-target="#content")(?=[^>]*hx-swap="outerHTML")(?=[^>]*hx-push-url="true")[^>]*>Clear filters</a>""").containsMatchIn(content),
+            "Clearing filters should replace the form and workspace together"
+        )
     }
 
     @Test
-    fun `calendar event route renders full calendar shell for direct browser requests`() = testApplication {
+    fun `incident queue applies search filters sorting and paging on the server`() = testApplication {
         application {
             module()
         }
 
-        val response = client.get("/components/calendar/route-contract-tests")
+        val filteredResponse = client.get("/components/incidents?q=production&status=open&sort=severity") {
+            header("HX-Request", "true")
+            header("HX-Target", "incident-workspace")
+        }
+        val filteredContent = filteredResponse.bodyAsText()
+
+        assertEquals(HttpStatusCode.OK, filteredResponse.status)
+        assertTrue(filteredContent.contains("id=\"incident-workspace\""))
+        assertFalse(filteredContent.contains("id=\"content\""))
+        assertFalse(filteredContent.contains("id=\"incident-filters\""))
+        assertTrue(filteredContent.contains("Admin authentication timeouts"))
+        assertFalse(filteredContent.contains("Metrics labels missing"))
+        assertFalse(filteredContent.contains("Checkout requests returning"))
+        assertTrue(filteredContent.contains("1 matching incident"))
+        assertTrue(
+            filteredContent.contains("href=\"/components/incidents/inc-1046?q=production&amp;status=open&amp;sort=severity\""),
+            "Detail links should preserve the active queue state"
+        )
+
+        val sortedContent = client.get("/components/incidents?sort=status") {
+            header("HX-Request", "true")
+            header("HX-Target", "incident-workspace")
+        }.bodyAsText()
+
+        assertTrue(sortedContent.indexOf("Admin authentication timeouts") < sortedContent.indexOf("Metrics labels missing"))
+        assertTrue(sortedContent.indexOf("Metrics labels missing") < sortedContent.indexOf("Checkout requests returning"))
+
+        val pagedResponse = client.get("/components/incidents?page=2") {
+            header("HX-Request", "true")
+            header("HX-Target", "incident-workspace")
+        }
+        val pagedContent = pagedResponse.bodyAsText()
+
+        assertEquals(HttpStatusCode.OK, pagedResponse.status)
+        assertTrue(pagedContent.contains("Page 2 of 3"))
+        assertTrue(pagedContent.contains("Search index refresh stalled"))
+        assertTrue(pagedContent.contains("Metrics labels missing from canary pods"))
+        assertFalse(pagedContent.contains("Checkout requests returning"))
+        assertTrue(pagedContent.contains("href=\"/components/incidents\""))
+        assertTrue(pagedContent.contains("href=\"/components/incidents?page=3\""))
+    }
+
+    @Test
+    fun `incident filters return an explicit empty state`() = testApplication {
+        application {
+            module()
+        }
+
+        val response = client.get("/components/incidents?q=does-not-exist") {
+            header("HX-Request", "true")
+            header("HX-Target", "incident-workspace")
+        }
+        val content = response.bodyAsText()
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertTrue(content.contains("No incidents match these filters"))
+        assertTrue(content.contains("No incident is selected"))
+        assertTrue(content.contains("No matching incidents"))
+    }
+
+    @Test
+    fun `incident detail route renders full filtered workspace for direct browser requests`() = testApplication {
+        application {
+            module()
+        }
+
+        val response = client.get("/components/incidents/inc-1045?q=staging&severity=medium&sort=severity")
         val content = response.bodyAsText()
 
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals(ContentType.Text.Html, response.contentType()?.withoutParameters())
         assertTrue(content.contains("Ktor + htmx Showcase"))
-        assertTrue(content.contains("Route contract test review"))
-        assertTrue(content.contains("The detail endpoint can be tested directly"))
+        assertTrue(content.contains("value=\"staging\""))
+        assertTrue(content.contains("Search index refresh stalled"))
+        assertTrue(content.contains("A malformed fixture has been isolated"))
         assertTrue(content.contains("htmx.org@2.0.10"))
         assertTrue(content.contains("href=\"/app.css\""))
         assertFalse(content.contains("cdn.tailwindcss.com"))
         assertEquals(1, Regex("""id="content"""").findAll(content).count())
         assertTrue(
-            Regex("""<a(?=[^>]*href="/components/calendar")(?=[^>]*aria-current="page")[^>]*>""").containsMatchIn(content),
-            "Calendar should remain active on direct event detail routes"
+            Regex("""<a(?=[^>]*href="/components/incidents")(?=[^>]*aria-current="page")[^>]*>""").containsMatchIn(content),
+            "Incidents should remain active on direct detail routes"
         )
     }
 
     @Test
-    fun `unknown calendar event route returns not found`() = testApplication {
+    fun `direct incident routes normalize filters and paging around the selected incident`() = testApplication {
+        application {
+            module()
+        }
+        val noRedirectClient = createClient {
+            followRedirects = false
+        }
+
+        val conflictingFilters = noRedirectClient.get(
+            "/components/incidents/inc-1048?q=staging&status=resolved&severity=low&page=3&sort=status"
+        )
+        assertEquals(HttpStatusCode.Found, conflictingFilters.status)
+        assertEquals(
+            "/components/incidents/inc-1048?sort=status",
+            conflictingFilters.headers[HttpHeaders.Location]
+        )
+
+        val wrongPage = noRedirectClient.get("/components/incidents/inc-1041?page=1")
+        assertEquals(HttpStatusCode.Found, wrongPage.status)
+        assertEquals(
+            "/components/incidents/inc-1041?page=3",
+            wrongPage.headers[HttpHeaders.Location]
+        )
+    }
+
+    @Test
+    fun `unknown incident route returns not found`() = testApplication {
         application {
             module()
         }
 
-        val response = client.get("/components/calendar/missing-event")
+        val response = client.get("/components/incidents/missing-incident")
 
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
@@ -160,12 +267,6 @@ class ComponentRouteTest {
     )
 
     private companion object {
-        private val calendarEventPaths = listOf(
-            "/components/calendar/ktor-routing",
-            "/components/calendar/htmx-fragment-swap",
-            "/components/calendar/route-contract-tests"
-        )
-
         private val componentExpectations = listOf(
             ComponentExpectation(
                 path = "/components/dashboard",
@@ -184,21 +285,17 @@ class ComponentRouteTest {
                 )
             ),
             ComponentExpectation(
-                path = "/components/calendar",
-                heading = "Calendar",
+                path = "/components/incidents",
+                heading = "Incidents",
                 requiredText = listOf(
-                    "Title",
-                    "Start Date",
-                    "End Date",
-                    "Location",
-                    "Ktor routing walkthrough",
-                    "2026-06-03",
-                    "htmx fragment swap demo",
-                    "2026-06-10",
-                    "Route contract test review",
-                    "Test suite",
-                    "Event details",
-                    "Expected outcome"
+                    "Incident queue",
+                    "Search incidents",
+                    "Checkout requests returning elevated errors",
+                    "Checkout API",
+                    "Critical",
+                    "Investigating",
+                    "Customer impact",
+                    "Latest update"
                 )
             ),
             ComponentExpectation(

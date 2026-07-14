@@ -126,7 +126,7 @@ class RoutingTest {
         }
         val content = client.get("/").bodyAsText()
 
-        listOf("Dashboard", "Team", "Projects", "Calendar", "About", "Contact").forEach { tab ->
+        listOf("Dashboard", "Team", "Projects", "Incidents", "About", "Contact").forEach { tab ->
             val path = "/components/${tab.lowercase()}"
 
             assertTrue(content.contains(">$tab</a>"), "Navigation should include $tab link text")

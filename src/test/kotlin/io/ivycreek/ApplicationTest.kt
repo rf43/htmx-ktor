@@ -30,7 +30,7 @@ class ApplicationTest {
         listOf(
             "/components/dashboard",
             "/components/team",
-            "/components/calendar",
+            "/components/incidents",
             "/components/projects",
             "/components/about",
             "/components/contact"

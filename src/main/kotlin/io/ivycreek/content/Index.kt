@@ -13,8 +13,8 @@ private const val ACTIVE_NAVIGATION_SCRIPT = """
     if (path === "/") {
       return "/components/dashboard";
     }
-    if (path.startsWith("/components/calendar/")) {
-      return "/components/calendar";
+    if (path.startsWith("/components/incidents/")) {
+      return "/components/incidents";
     }
     return path;
   }
@@ -62,7 +62,7 @@ fun HTML.index(activePath: String = "/components/dashboard", pageContent: FlowCo
         classes = setOf("h-full", "bg-slate-50")
         div {
             classes = setOf("min-h-full")
-            navbar(activePath, "Dashboard", "Team", "Projects", "Calendar", "About", "Contact")
+            navbar(activePath, "Dashboard", "Team", "Projects", "Incidents", "About", "Contact")
             pageContent()
         }
     }
