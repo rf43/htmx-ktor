@@ -18,7 +18,7 @@ private val demoProjects = listOf(
     DemoProject(
         "Server-rendered tables",
         "Ready",
-        "The calendar page renders structured data on the server, so the browser receives complete semantic markup."
+        "The incident queue renders structured data on the server, so the browser receives complete semantic markup."
     ),
     DemoProject(
         "Progressive enhancement",

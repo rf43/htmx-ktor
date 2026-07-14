@@ -13,7 +13,8 @@ This repository is best treated as a compact example or starting point, not as a
 - htmx-powered navigation for dynamic component swaps
 - Active navigation state for direct loads, htmx swaps, and browser history
 - Direct component URLs that still render the full application shell on refresh
-- Interactive calendar rows that load server-rendered event details
+- Server-owned incident search, filtering, sorting, and pagination
+- Refreshable incident detail routes with focused htmx swaps
 - Tailwind utility classes compiled into a static CSS asset
 - Netty-based Ktor server
 - Sitemap and robots.txt endpoints for the configured public URL
@@ -28,7 +29,7 @@ This repository is best treated as a compact example or starting point, not as a
 - Gradle wrapper `9.5.1`
 - Logback `1.5.33`
 - JaCoCo `0.8.14`
-- htmx `2.0.10`
+- [htmx](https://htmx.org/) `2.0.10`
 - Tailwind CSS `4.3.0`
 - Tailwind CLI `4.3.0`
 
@@ -69,7 +70,7 @@ Run tests:
 ./gradlew test
 ```
 
-The test suite verifies the root application shell, static asset routing, htmx navigation attributes, component route registration, and route-specific showcase content.
+The test suite verifies the root application shell, static asset routing, htmx navigation attributes, component route registration, server-owned incident queries, and route-specific showcase content.
 
 Rebuild the compiled Tailwind CSS asset:
 
@@ -150,7 +151,7 @@ htmx-ktor/
 |   |-- main/
 |   |   |-- kotlin/io/ivycreek/
 |   |   |   |-- about/
-|   |   |   |-- calendar/
+|   |   |   |-- incidents/
 |   |   |   |-- contact/
 |   |   |   |-- content/
 |   |   |   |-- dashboard/
@@ -181,6 +182,7 @@ Each page package generally has two files:
 
 The root page and static resource routing live in `src/main/kotlin/io/ivycreek/plugins/Routing.kt`.
 Component routes return fragments for htmx requests and the full application shell for normal browser requests, so pushed URLs remain refreshable and bookmarkable.
+The incident workspace uses ordinary GET query parameters for search, filters, sorting, and paging. htmx submits the same URLs and swaps only the queue or detail region.
 
 ## Notes
 

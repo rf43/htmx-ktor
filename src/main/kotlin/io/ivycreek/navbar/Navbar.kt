@@ -42,7 +42,7 @@ fun FlowContent.navbar(activePath: String = DASHBOARD_PATH, vararg tabs: String)
                 }
             }
             div {
-                classes = setOf("flex", "flex-wrap", "items-center", "gap-2", "sm:ml-6")
+                classes = setOf("flex", "min-w-0", "flex-1", "flex-wrap", "items-center", "gap-2", "sm:ml-6")
                 tabs.map {
                     val path = "/components/${it.lowercase()}"
                     val active = path == activePath || (path == DASHBOARD_PATH && activePath == "/")
