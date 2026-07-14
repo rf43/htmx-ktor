@@ -320,7 +320,7 @@ private fun FlowContent.incidentFilters(query: IncidentQuery) = form(
         a {
             href = INCIDENTS_PATH
             attributes["hx-get"] = INCIDENTS_PATH
-            attributes["hx-target"] = "#$INCIDENT_WORKSPACE_ID"
+            attributes["hx-target"] = "#content"
             attributes["hx-swap"] = "outerHTML"
             attributes["hx-push-url"] = "true"
             classes = setOf("text-sm", "font-semibold", "text-cyan-700", "hover:text-cyan-900", "underline", "underline-offset-4")

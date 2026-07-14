@@ -84,6 +84,10 @@ class ComponentRouteTest {
             Regex("""<a(?=[^>]*href="/components/incidents\?page=2")(?=[^>]*hx-get="/components/incidents\?page=2")(?=[^>]*hx-target="#incident-workspace")(?=[^>]*hx-push-url="true")[^>]*>Next</a>""").containsMatchIn(content),
             "Pagination should retain a normal URL fallback"
         )
+        assertTrue(
+            Regex("""<a(?=[^>]*href="/components/incidents")(?=[^>]*hx-get="/components/incidents")(?=[^>]*hx-target="#content")(?=[^>]*hx-swap="outerHTML")(?=[^>]*hx-push-url="true")[^>]*>Clear filters</a>""").containsMatchIn(content),
+            "Clearing filters should replace the form and workspace together"
+        )
     }
 
     @Test
