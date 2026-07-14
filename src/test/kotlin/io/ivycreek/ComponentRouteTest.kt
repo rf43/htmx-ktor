@@ -1,10 +1,12 @@
 package io.ivycreek
 
+import io.ivycreek.incidents.incidentsRouter
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import java.time.Instant
 import kotlin.test.*
 
 class ComponentRouteTest {
@@ -78,6 +80,11 @@ class ComponentRouteTest {
         assertTrue(content.contains("name=\"severity\""))
         assertTrue(content.contains("name=\"sort\""))
         assertTrue(
+            Regex("""<section(?=[^>]*id="incident-activity")(?=[^>]*hx-get="/components/incidents/activity")(?=[^>]*hx-trigger="every 15s")(?=[^>]*hx-target="this")(?=[^>]*hx-swap="outerHTML")[^>]*>""").containsMatchIn(content),
+            "The activity snapshot should poll only its own server-rendered region"
+        )
+        assertTrue(content.contains("The current server-rendered snapshot remains readable without it."))
+        assertTrue(
             Regex("""<a(?=[^>]*href="/components/incidents/inc-1048")(?=[^>]*hx-get="/components/incidents/inc-1048")(?=[^>]*hx-target="#incident-detail")(?=[^>]*hx-swap="outerHTML")(?=[^>]*hx-push-url="true")[^>]*>""").containsMatchIn(content),
             "Incident details should use normal links enhanced with focused htmx swaps"
         )
@@ -88,6 +95,53 @@ class ComponentRouteTest {
         assertTrue(
             Regex("""<a(?=[^>]*href="/components/incidents")(?=[^>]*hx-get="/components/incidents")(?=[^>]*hx-target="#content")(?=[^>]*hx-swap="outerHTML")(?=[^>]*hx-push-url="true")[^>]*>Clear filters</a>""").containsMatchIn(content),
             "Clearing filters should replace the form and workspace together"
+        )
+    }
+
+    @Test
+    fun `incident activity route returns only the polling region for htmx requests`() = testApplication {
+        application {
+            incidentsRouter { Instant.parse("2026-07-14T03:45:00Z") }
+        }
+
+        val response = client.get("/components/incidents/activity") {
+            header("HX-Request", "true")
+            header("HX-Target", "incident-activity")
+        }
+        val content = response.bodyAsText()
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(ContentType.Text.Html, response.contentType()?.withoutParameters())
+        assertEquals(1, Regex("""id="incident-activity"""").findAll(content).count())
+        assertTrue(content.contains("Operational activity"))
+        assertTrue(content.contains("Mitigation started"))
+        assertTrue(content.contains("Recovery confirmed"))
+        assertTrue(content.contains("Investigation narrowed"))
+        assertTrue(content.contains("datetime=\"2026-07-14T03:45:00Z\""))
+        assertTrue(content.contains("03:45:00 UTC"))
+        assertFalse(content.contains("id=\"content\""))
+        assertFalse(content.contains("id=\"incident-workspace\""))
+        assertFalse(content.contains("data-nav-link"))
+        assertFalse(content.contains("htmx.org@"))
+    }
+
+    @Test
+    fun `incident activity route renders the full incidents page for direct requests`() = testApplication {
+        application {
+            module()
+        }
+
+        val response = client.get("/components/incidents/activity")
+        val content = response.bodyAsText()
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertTrue(content.contains("Ktor + htmx Showcase"))
+        assertEquals(1, Regex("""id="content"""").findAll(content).count())
+        assertEquals(1, Regex("""id="incident-activity"""").findAll(content).count())
+        assertTrue(content.contains("id=\"incident-workspace\""))
+        assertTrue(
+            Regex("""<a(?=[^>]*href="/components/incidents")(?=[^>]*aria-current="page")[^>]*>""").containsMatchIn(content),
+            "Incidents should remain active on direct activity routes"
         )
     }
 
@@ -289,6 +343,8 @@ class ComponentRouteTest {
                 heading = "Incidents",
                 requiredText = listOf(
                     "Incident queue",
+                    "Operational activity",
+                    "Snapshot checked",
                     "Search incidents",
                     "Checkout requests returning elevated errors",
                     "Checkout API",

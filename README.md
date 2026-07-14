@@ -15,6 +15,7 @@ This repository is best treated as a compact example or starting point, not as a
 - Direct component URLs that still render the full application shell on refresh
 - Server-owned incident search, filtering, sorting, and pagination
 - Refreshable incident detail routes with focused htmx swaps
+- Focused operational activity polling through a server-rendered fragment
 - Tailwind utility classes compiled into a static CSS asset
 - Netty-based Ktor server
 - Sitemap and robots.txt endpoints for the configured public URL
@@ -70,7 +71,7 @@ Run tests:
 ./gradlew test
 ```
 
-The test suite verifies the root application shell, static asset routing, htmx navigation attributes, component route registration, server-owned incident queries, and route-specific showcase content.
+The test suite verifies the root application shell, static asset routing, htmx navigation attributes, component route registration, server-owned incident queries, focused activity polling, and route-specific showcase content.
 
 Rebuild the compiled Tailwind CSS asset:
 
@@ -182,7 +183,7 @@ Each page package generally has two files:
 
 The root page and static resource routing live in `src/main/kotlin/io/ivycreek/plugins/Routing.kt`.
 Component routes return fragments for htmx requests and the full application shell for normal browser requests, so pushed URLs remain refreshable and bookmarkable.
-The incident workspace uses ordinary GET query parameters for search, filters, sorting, and paging. htmx submits the same URLs and swaps only the queue or detail region.
+The incident workspace uses ordinary GET query parameters for search, filters, sorting, and paging. htmx submits the same URLs and swaps only the queue or detail region. A compact operational activity snapshot polls its own Ktor fragment while keeping the initial server-rendered content useful when JavaScript is unavailable.
 Direct incident URLs normalize filter and page context so the selected incident remains visible in the queue after a refresh.
 
 ## Notes

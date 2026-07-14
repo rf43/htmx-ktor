@@ -3,13 +3,19 @@ package io.ivycreek.incidents
 import io.ivycreek.content.pageHeader
 import io.ktor.http.Parameters
 import io.ktor.http.formUrlEncode
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import kotlinx.html.*
 
 internal const val INCIDENTS_PATH = "/components/incidents"
+internal const val INCIDENT_ACTIVITY_PATH = "$INCIDENTS_PATH/activity"
 private const val INCIDENT_WORKSPACE_ID = "incident-workspace"
 private const val INCIDENT_DETAIL_ID = "incident-detail"
 private const val INCIDENT_FILTERS_ID = "incident-filters"
+private const val INCIDENT_ACTIVITY_ID = "incident-activity"
 private const val PAGE_SIZE = 3
+private val ACTIVITY_CHECK_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss 'UTC'").withZone(ZoneOffset.UTC)
 
 internal enum class IncidentStatus(val queryValue: String, val label: String) {
     OPEN("open", "Open"),
@@ -43,6 +49,13 @@ internal data class Incident(
     val summary: String,
     val impact: String,
     val latestUpdate: String
+)
+
+internal data class IncidentActivity(
+    val incidentId: String,
+    val occurredAt: String,
+    val title: String,
+    val summary: String
 )
 
 internal data class IncidentQuery(
@@ -204,6 +217,27 @@ internal val incidents = listOf(
     )
 )
 
+internal val incidentActivities = listOf(
+    IncidentActivity(
+        incidentId = "inc-1048",
+        occurredAt = "2026-07-10 14:47 UTC",
+        title = "Mitigation started",
+        summary = "Checkout traffic shifted to the secondary payment provider."
+    ),
+    IncidentActivity(
+        incidentId = "inc-1047",
+        occurredAt = "2026-07-10 12:38 UTC",
+        title = "Recovery confirmed",
+        summary = "Inventory synchronization latency returned to its normal range."
+    ),
+    IncidentActivity(
+        incidentId = "inc-1046",
+        occurredAt = "2026-07-10 10:11 UTC",
+        title = "Investigation narrowed",
+        summary = "Gateway traces isolated the slow production policy lookup."
+    )
+)
+
 internal fun findIncident(incidentId: String?) = incidents.find { it.id == incidentId }
 
 internal fun findIncidents(query: IncidentQuery): IncidentResults {
@@ -242,7 +276,11 @@ private fun incidentComparator(sort: IncidentSort): Comparator<Incident> = when 
     IncidentSort.STATUS -> compareBy<Incident> { it.status.ordinal }.thenByDescending(Incident::reportedAt)
 }
 
-internal fun FlowContent.incidentsPage(query: IncidentQuery, selectedIncidentId: String? = null) = div {
+internal fun FlowContent.incidentsPage(
+    query: IncidentQuery,
+    selectedIncidentId: String? = null,
+    activityCheckedAt: Instant = Instant.now()
+) = div {
     val results = findIncidents(query)
     val selectedIncident = selectedIncidentId?.let(::findIncident) ?: results.incidents.firstOrNull()
 
@@ -257,8 +295,62 @@ internal fun FlowContent.incidentsPage(query: IncidentQuery, selectedIncidentId:
                 +"Search, filter, sort, and page through incidents on the server. Each URL remains refreshable while htmx updates only the queue or detail region."
             }
         }
+        incidentActivity(activityCheckedAt)
         incidentFilters(query)
         incidentWorkspace(query, results, selectedIncident)
+    }
+}
+
+internal fun FlowContent.incidentActivity(checkedAt: Instant) = section {
+    id = INCIDENT_ACTIVITY_ID
+    attributes["hx-get"] = INCIDENT_ACTIVITY_PATH
+    attributes["hx-trigger"] = "every 15s"
+    attributes["hx-target"] = "this"
+    attributes["hx-swap"] = "outerHTML"
+    attributes["aria-labelledby"] = "incident-activity-heading"
+    classes = setOf("rounded-lg", "border", "border-gray-200", "bg-white", "p-5", "shadow-sm")
+    div {
+        classes = setOf("flex", "flex-col", "gap-2", "sm:flex-row", "sm:items-start", "sm:justify-between")
+        div {
+            h2 {
+                id = "incident-activity-heading"
+                classes = setOf("text-lg", "font-semibold", "text-gray-950")
+                +"Operational activity"
+            }
+            p {
+                classes = setOf("mt-1", "max-w-3xl", "text-sm", "leading-6", "text-gray-600")
+                +"htmx polls this Ktor fragment every 15 seconds when JavaScript is available. The current server-rendered snapshot remains readable without it."
+            }
+        }
+        p {
+            classes = setOf("shrink-0", "text-sm", "text-gray-600")
+            +"Snapshot checked "
+            time {
+                attributes["datetime"] = checkedAt.toString()
+                classes = setOf("font-semibold", "text-gray-900")
+                +ACTIVITY_CHECK_FORMATTER.format(checkedAt)
+            }
+        }
+    }
+    ol {
+        classes = setOf("mt-5", "grid", "gap-4", "md:grid-cols-3")
+        incidentActivities.forEach { activity ->
+            li {
+                classes = setOf("rounded-md", "bg-slate-50", "p-4")
+                p {
+                    classes = setOf("text-xs", "font-medium", "uppercase", "tracking-wide", "text-gray-500")
+                    +"${activity.incidentId.uppercase()} · ${activity.occurredAt}"
+                }
+                h3 {
+                    classes = setOf("mt-2", "text-sm", "font-semibold", "text-gray-950")
+                    +activity.title
+                }
+                p {
+                    classes = setOf("mt-2", "text-sm", "leading-6", "text-gray-700")
+                    +activity.summary
+                }
+            }
+        }
     }
 }
 
