@@ -1,17 +1,21 @@
+FROM node:22.23.4-bookworm-slim AS css
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY src ./src
+RUN npm run build:css
+
 FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
 COPY gradlew settings.gradle.kts build.gradle.kts gradle.properties ./
-COPY package.json package-lock.json ./
 COPY gradle ./gradle
 COPY src ./src
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends nodejs npm \
-    && rm -rf /var/lib/apt/lists/*
+COPY --from=css /app/src/main/resources/static/app.css ./src/main/resources/static/app.css
 
-RUN npm ci
-RUN npm run build:css
 RUN chmod +x ./gradlew \
     && ./gradlew installDist \
         -Pdevelopment=false \

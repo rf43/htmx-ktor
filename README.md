@@ -37,7 +37,7 @@ This repository is best treated as a compact example or starting point, not as a
 ## Prerequisites
 
 - JDK 17 or 21
-- Node.js and npm for rebuilding Tailwind CSS
+- Node.js `22.23.4` and its bundled npm for rebuilding Tailwind CSS
 - No separate Gradle installation is required; use the checked-in Gradle wrapper.
 - Docker is optional and only required for container build checks.
 
@@ -108,7 +108,15 @@ Build the container image:
 docker build -t htmx-ktor .
 ```
 
-The Docker build regenerates `app.css` before packaging the Ktor distribution.
+The Docker build uses the official `node:22.23.4-bookworm-slim` image to run
+`npm ci` and regenerate `app.css`. Node `22.23.4` includes the
+[October 21, 2026 security fixes](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases),
+including CVE-2026-111497.
+
+The generated CSS is copied into the Java 21 build stage after the source tree,
+so Gradle packages the freshly built asset rather than the checked-in copy.
+Only the Ktor distribution is copied into the final Java 21 JRE image, which runs
+as UID `10001` without Node.js or npm.
 The Docker build runs Kotlin compilation in-process to avoid short-lived Kotlin daemon files during hosted image builds.
 
 Run the container locally:
